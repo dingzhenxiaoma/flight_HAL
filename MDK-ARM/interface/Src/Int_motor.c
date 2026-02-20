@@ -1,0 +1,21 @@
+#include "Int_motor.h"
+
+void Int_motor_SetSpeed(Motor_struct *motor)
+{
+    if (motor->speed > 1000)
+    {
+        debug_printf("speed is too big\n");
+        return;
+    }
+    __HAL_TIM_SET_COMPARE(motor->tim, motor->channel, motor->speed);
+}
+
+void Int_motor_start(Motor_struct *motor)
+{
+    if (motor == NULL)
+    {
+        debug_printf("motor is NULL\n");
+        return;
+    }
+    HAL_TIM_PWM_Start(motor->tim, motor->channel);
+}

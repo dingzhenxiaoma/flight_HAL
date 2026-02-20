@@ -1,0 +1,30 @@
+# Keil MDK build output
+MDK-ARM/flight_HAL/
+MDK-ARM/DebugConfig/
+MDK-ARM/RTE/
+
+# Keil temporary/user files
+*.uvguix.*
+*.scvd
+*.dbgconf
+*.lst
+*.o
+*.d
+*.crf
+*.dep
+*.htm
+*.map
+*.lnp
+*.axf
+*.hex
+*.bin
+*.elf
+*.build_log.htm
+*.sct
+
+# IDE settings (optional, remove if you want to share)
+MDK-ARM/.vscode/
+
+# OS files
+Thumbs.db
+.DS_Store

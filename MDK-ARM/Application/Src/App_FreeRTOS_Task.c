@@ -47,7 +47,10 @@ Led_struct left_bottom_led = {
 // 当前连接状态
 Remote_State remote_state = REMOTE_DISCONNECTED;
 // 当前飞行状态
-Flight_State flight_state = IDLE;          
+Flight_State flight_state = IDLE;    
+
+
+TaskHandle_t comm_task_handle = NULL;
 
 void App_FreeRTOS_start(void)
 {
@@ -60,6 +63,9 @@ void App_FreeRTOS_start(void)
     // 灯控任务
     xTaskCreate(led_task, "led_task", LED_TASK_STACK_SIZE, NULL, LED_TASK_PRIORITY, &led_task_handle);
     
+    // 通信任务
+    xTaskCreate(comm_task, "comm_task", COMM_TASK_STACK_SIZE, NULL, COMM_TASK_PRIORITY, &comm_task_handle);
+
     // 启动调度器
     vTaskStartScheduler();
 }
@@ -162,5 +168,25 @@ void led_task(void *pvParameters)
         }
 
         vTaskDelayUntil(&xLastWakeTime, LED_TASK_PERIOD); // 延时100ms
+    }
+}
+
+uint8_t comm_buff[TX_PLOAD_WIDTH] = {0};
+
+void comm_task(void *pvParameters)
+{
+    //初始化延时时间
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    while (1)
+    {
+        //接收数据到缓冲区
+        uint8_t rx_res = Int_SI24R1_RxPacket(comm_buff);
+        if(rx_res == 0)
+        {
+            // 打印接收到的数据
+            debug_printf("Received: %s\n", comm_buff);
+        }
+
+        vTaskDelayUntil(&xLastWakeTime, COMM_TASK_PERIOD); // 延时COMM_TASK_PERIOD秒
     }
 }

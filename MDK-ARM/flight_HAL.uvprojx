@@ -1077,6 +1077,11 @@
               <FileType>5</FileType>
               <FilePath>.\Application\Inc\App_FreeRTOS_Task.h</FilePath>
             </File>
+            <File>
+              <FileName>App_receive_data.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Application\Inc\App_receive_data.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1086,6 +1091,11 @@
               <FileName>App_FreeRTOS_Task.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Application\Src\App_FreeRTOS_Task.c</FilePath>
+            </File>
+            <File>
+              <FileName>App_receive_data.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Application\Src\App_receive_data.c</FilePath>
             </File>
           </Files>
         </Group>

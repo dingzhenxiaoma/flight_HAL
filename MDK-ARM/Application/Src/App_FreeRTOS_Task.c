@@ -49,8 +49,10 @@ Remote_State remote_state = REMOTE_DISCONNECTED;
 // 当前飞行状态
 Flight_State flight_state = IDLE;    
 
-
 TaskHandle_t comm_task_handle = NULL;
+
+// 接收的遥控数据
+Remote_data remote_data={0};
 
 void App_FreeRTOS_start(void)
 {
@@ -78,9 +80,19 @@ void power_task(void *pvParameters)
     TickType_t xLastWakeTime = xTaskGetTickCount();
     while (1)
     {
-        vTaskDelayUntil(&xLastWakeTime, POWER_TASK_PERIOD); // 延时10s
-        //启动电源
-        Int_IP5305T_start();
+        // 等待关机命令
+        uint32_t res = ulTaskNotifyTake(pdTRUE, POWER_TASK_PERIOD);
+        if (res != 0)
+        {
+            // 收到关机命令, 关闭电源
+            Int_IP5305T_shutdown();
+        }
+        else
+        {
+            //启动电源
+            Int_IP5305T_start();
+        }
+
     }
 }
 
@@ -171,7 +183,6 @@ void led_task(void *pvParameters)
     }
 }
 
-uint8_t comm_buff[TX_PLOAD_WIDTH+1] = {0};
 
 void comm_task(void *pvParameters)
 {
@@ -179,13 +190,18 @@ void comm_task(void *pvParameters)
     TickType_t xLastWakeTime = xTaskGetTickCount();
     while (1)
     {
-        //接收数据到缓冲区
-        uint8_t rx_res = Int_SI24R1_RxPacket(comm_buff);
-        if(rx_res == 0)
+        // 接收数据
+        uint8_t res = App_Receive_Data();
+        // 处理连接状态
+        App_Process_connect_state(res);
+        // 处理关机命令
+        if (remote_data.shutdown==1)
         {
-            // 打印接收到的数据
-            debug_printf("Received: %s\n", comm_buff);
+            // 使用直接任务通知
+            xTaskNotifyGive(power_task_handle);
         }
+        // 处理飞机的飞行状态
+        App_Process_flight_state();
 
         vTaskDelayUntil(&xLastWakeTime, COMM_TASK_PERIOD); // 延时COMM_TASK_PERIOD秒
     }

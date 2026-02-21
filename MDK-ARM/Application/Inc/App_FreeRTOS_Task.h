@@ -9,6 +9,7 @@
 #include "Int_led.h"
 #include "Com_config.h"
 #include "Int_SI24R1.h"
+#include "App_receive_data.h"
 
 //启动FreeRTOS操作系统
 void App_FreeRTOS_start(void);

@@ -20,4 +20,26 @@ typedef enum
     FAIL,
 }Flight_State;
 
+// 油门解锁状态
+typedef enum
+{
+    FREE=0,
+    MAX,
+    LEAVE_MAX,
+    MIN,
+    UNLOCK,
+}Thr_State;
+
+
+// 遥控器数据结构体
+typedef struct
+{
+    int16_t thr;
+    int16_t yaw;
+    int16_t pitch;
+    int16_t roll;
+    uint8_t shutdown; // 关闭指令
+    uint8_t fix_height; // 固定高度指令
+}Remote_data;
+
 #endif

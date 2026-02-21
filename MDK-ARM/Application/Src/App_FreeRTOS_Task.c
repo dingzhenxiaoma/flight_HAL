@@ -171,7 +171,7 @@ void led_task(void *pvParameters)
     }
 }
 
-uint8_t comm_buff[TX_PLOAD_WIDTH] = {0};
+uint8_t comm_buff[TX_PLOAD_WIDTH+1] = {0};
 
 void comm_task(void *pvParameters)
 {

@@ -3,6 +3,9 @@
 
 #include "spi.h"
 #include "Com_debug.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
 
 //拉低片选
 #define CSN_LOW HAL_GPIO_WritePin(SPI1_NSS_GPIO_Port, SPI1_NSS_Pin, GPIO_PIN_RESET)
@@ -17,7 +20,7 @@
 
 
 #define TX_ADR_WIDTH 5    // 5字节地址宽度
-#define TX_PLOAD_WIDTH 32 // 32字节有效负载宽度
+#define TX_PLOAD_WIDTH 17 // 17字节有效负载宽度
 
 //********************************************************************************************************************//
 // SPI(SI24R1) commands

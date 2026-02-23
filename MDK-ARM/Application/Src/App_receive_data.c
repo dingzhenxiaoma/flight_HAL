@@ -8,11 +8,28 @@ extern Flight_State flight_state;
 Thr_State thr_state = FREE;
 uint32_t max_enter_time=0;
 uint32_t min_enter_time=0;
+extern uint16_t fix_height;
+extern uint8_t bat_voltage[TX_PLOAD_WIDTH];
 
 uint8_t App_Receive_Data(void)
 {
     memset(rx_buff,0,TX_PLOAD_WIDTH);
-    Int_SI24R1_RxPacket(rx_buff);
+    uint8_t res = Int_SI24R1_RxPacket(rx_buff);
+    
+    if(res == 0)
+    {
+        //收到遥控数据->回传电压值
+        Int_SI24R1_TX_Mode();
+
+        // 设置发送上限
+        uint16_t count=500;
+        while (Int_SI24R1_TxPacket(bat_voltage)==1 && count--)
+        {
+        }
+        Int_SI24R1_RX_Mode();
+    }
+
+
     if(strlen((char*)rx_buff)==0)
         return 1;
     
@@ -38,7 +55,7 @@ uint8_t App_Receive_Data(void)
     remote_data.shutdown=rx_buff[11];
     remote_data.fix_height=rx_buff[12];
 
-    debug_printf(":%d,%d,%d,%d,%d,%d\n",remote_data.thr,remote_data.yaw,remote_data.pitch,remote_data.roll,remote_data.shutdown,remote_data.fix_height);
+    //debug_printf(":%d,%d,%d,%d,%d,%d\n",remote_data.thr,remote_data.yaw,remote_data.pitch,remote_data.roll,remote_data.shutdown,remote_data.fix_height);
 
     return 0;
 }
@@ -138,6 +155,8 @@ void App_Process_flight_state(void)
         {
             flight_state = FIX_HEIGHT;
             remote_data.fix_height = 0;
+            // 记录定高高度
+            fix_height = Int_VL53L1X_GetDistance();
         }
         if(remote_state == REMOTE_DISCONNECTED)
         {
@@ -157,7 +176,7 @@ void App_Process_flight_state(void)
         break;
     case FAIL:
         // 处理失联故障：缓慢停止电机
-        vTaskDelay(1);
+        ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
         flight_state = IDLE;
         break;
     default:

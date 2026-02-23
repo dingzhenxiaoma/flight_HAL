@@ -10,6 +10,8 @@
 #include "Com_config.h"
 #include "Int_SI24R1.h"
 #include "App_receive_data.h"
+#include "App_flight.h"
+#include "Int_bat_ADC.h"
 
 //启动FreeRTOS操作系统
 void App_FreeRTOS_start(void);
@@ -34,8 +36,8 @@ void led_task(void *pvParameters);
 
 // 通讯任务
 void comm_task(void *pvParameters);
-#define COMM_TASK_PRIORITY    (2)
+#define COMM_TASK_PRIORITY    (4)
 #define COMM_TASK_STACK_SIZE    (128)
-#define COMM_TASK_PERIOD    (6)
+#define COMM_TASK_PERIOD    (10)
 
 #endif /* __APP_FREE_RTOS_TASK_H__ */

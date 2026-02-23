@@ -3,27 +3,6 @@
 TaskHandle_t power_task_handle = NULL;
 
 TaskHandle_t flight_task_handle = NULL;
-// 电机结构体
-Motor_struct left_top_motor = {
-    .tim = &htim3,
-    .channel = TIM_CHANNEL_1,
-    .speed = 200,
-};
-Motor_struct left_bottom_motor = {
-    .tim = &htim4,
-    .channel = TIM_CHANNEL_4,
-    .speed = 200,
-};
-Motor_struct right_top_motor = {
-    .tim = &htim2,
-    .channel = TIM_CHANNEL_2,
-    .speed = 200,
-};
-Motor_struct right_bottom_motor = {
-    .tim = &htim1,
-    .channel = TIM_CHANNEL_3,
-    .speed = 200,
-};
 
 TaskHandle_t led_task_handle = NULL;
 // led结构体
@@ -52,7 +31,12 @@ Flight_State flight_state = IDLE;
 TaskHandle_t comm_task_handle = NULL;
 
 // 接收的遥控数据
-Remote_data remote_data={0};
+Remote_data remote_data={.thr=0,.pitch=500,.roll=500,.yaw=500,.fix_height=0,.shutdown=0};
+
+// 按下定高时的飞行高度
+uint16_t fix_height = 0;
+
+uint8_t bat_voltage[TX_PLOAD_WIDTH] = {0};
 
 void App_FreeRTOS_start(void)
 {
@@ -101,12 +85,32 @@ void flight_task(void *pvParameters)
 {
     //初始化延时时间
     TickType_t xLastWakeTime = xTaskGetTickCount();
+    uint8_t count=0;
+    App_Flight_Init();
     while (1)
     {
-        // 设置电机速度
+        // 计算欧拉角
+        App_Flight_Calc_Euler();
+        // 处理PID
+        App_Flight_Pid_process();
 
-        // 启动电机
+        // 判断定高
+        if(flight_state == FIX_HEIGHT)
+        {
+            count++;
+            if(count >= 4)
+            {
+                App_Flight_Fix_Height();
+                count=0;
+            }
+        }
 
+        // 电机控制
+        App_Flight_Motor_Control();
+        // 距离传感器
+        //uint16_t distance = Int_VL53L1X_GetDistance();
+        //debug_printf(":%d\n", distance);
+        
         vTaskDelayUntil(&xLastWakeTime, FLIGHT_TASK_PERIOD); // 延时6ms
     }
 }
@@ -186,8 +190,7 @@ void led_task(void *pvParameters)
 
 void comm_task(void *pvParameters)
 {
-    //初始化延时时间
-    TickType_t xLastWakeTime = xTaskGetTickCount();
+    Int_bat_ADC_Init();
     while (1)
     {
         // 接收数据
@@ -203,6 +206,11 @@ void comm_task(void *pvParameters)
         // 处理飞机的飞行状态
         App_Process_flight_state();
 
-        vTaskDelayUntil(&xLastWakeTime, COMM_TASK_PERIOD); // 延时COMM_TASK_PERIOD秒
+        // 处理电池电压
+        float voltage = Int_bat_ADC_Read();
+        sprintf(bat_voltage,"%.2f",voltage);
+        //debug_printf("bat_voltage:%.2fV\n", bat_voltage);
+
+        vTaskDelay(COMM_TASK_PERIOD); // 延时COMM_TASK_PERIOD秒
     }
 }

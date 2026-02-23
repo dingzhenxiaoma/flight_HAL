@@ -8,7 +8,7 @@ typedef struct
 {
     TIM_HandleTypeDef *tim;
     uint16_t channel;
-    uint16_t speed;
+    int16_t speed;
 
 }Motor_struct;
 

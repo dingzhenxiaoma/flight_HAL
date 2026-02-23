@@ -3,6 +3,7 @@
 
 #include "Int_SI24R1.h"
 #include "Com_config.h"
+#include "Int_VL53L1X.h"
 
 //定义帧头校验的值
 #define FRAME_HEADER_CHECK1 'a'

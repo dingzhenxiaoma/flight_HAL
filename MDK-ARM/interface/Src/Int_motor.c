@@ -17,5 +17,6 @@ void Int_motor_start(Motor_struct *motor)
         debug_printf("motor is NULL\n");
         return;
     }
+    __HAL_TIM_SET_COMPARE(motor->tim, motor->channel, 0);
     HAL_TIM_PWM_Start(motor->tim, motor->channel);
 }

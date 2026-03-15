@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/Drone/codes/remote_HAL/Core/Inc/**)",
+      "Read(//d/Drone/codes/flight_HAL/Core/Inc/**)",
+      "Read(//d/Drone/codes/remote_HAL/MDK-ARM/Application/Inc/**)",
+      "Read(//d/Drone/codes/flight_HAL/Core/Src/**)",
+      "Read(//d/Drone/codes/remote_HAL/MDK-ARM/interface/Inc/**)"
+    ]
+  }
+}
